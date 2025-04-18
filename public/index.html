@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Window Sticker Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Window Sticker Generator</h1>
+  <form id="vinForm">
+    <label for="vin">Enter VIN:</label>
+    <input type="text" id="vin" required />
+    
+    <label for="price">Price ($):</label>
+    <input type="number" id="price" required />
+    
+    <label for="carfax">CarFax URL (for QR code):</label>
+    <input type="url" id="carfax" placeholder="https://..." required />
+    
+    <button type="submit">Generate PDF</button>
+  </form>
+
+  <script>
+    document.getElementById('vinForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const vin = document.getElementById('vin').value;
+      const price = document.getElementById('price').value;
+      const carfax = document.getElementById('carfax').value;
+      
+      try {
+        const res = await fetch('/generate-sticker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vin, price, carfaxUrl: carfax })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          window.open(result.url, '_blank');
+        } else {
+          alert("Error: " + result.error);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
